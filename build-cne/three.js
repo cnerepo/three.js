@@ -90,7 +90,7 @@
 
 	}
 
-	var REVISION = '82dev';
+	var REVISION = '82';
 
 	var CullFaceNone = 0;
 	var CullFaceBack = 1;
@@ -225,7 +225,7 @@
 	 * @author mrdoob / http://mrdoob.com/
 	 */
 
-	exports.Math = {
+	var _Math = {
 
 		DEG2RAD: Math.PI / 180,
 		RAD2DEG: 180 / Math.PI,
@@ -355,13 +355,13 @@
 
 		degToRad: function ( degrees ) {
 
-			return degrees * exports.Math.DEG2RAD;
+			return degrees * _Math.DEG2RAD;
 
 		},
 
 		radToDeg: function ( radians ) {
 
-			return radians * exports.Math.RAD2DEG;
+			return radians * _Math.RAD2DEG;
 
 		},
 
@@ -882,7 +882,7 @@
 
 					v1.applyMatrix4( this );
 
-					buffer.setXYZ( v1.x, v1.y, v1.z );
+					buffer.setXYZ( j, v1.x, v1.y, v1.z );
 
 				}
 
@@ -1282,7 +1282,7 @@
 
 		makePerspective: function ( fov, aspect, near, far ) {
 
-			var ymax = near * Math.tan( exports.Math.DEG2RAD * fov * 0.5 );
+			var ymax = near * Math.tan( _Math.DEG2RAD * fov * 0.5 );
 			var ymin = - ymax;
 			var xmin = ymin * aspect;
 			var xmax = ymax * aspect;
@@ -1372,592 +1372,6 @@
 		}
 
 	};
-
-	/**
-	 * @author mikael emtinger / http://gomo.se/
-	 * @author alteredq / http://alteredqualia.com/
-	 * @author WestLangley / http://github.com/WestLangley
-	 * @author bhouston / http://clara.io
-	 */
-
-	function Quaternion( x, y, z, w ) {
-
-		this._x = x || 0;
-		this._y = y || 0;
-		this._z = z || 0;
-		this._w = ( w !== undefined ) ? w : 1;
-
-	}
-
-	Quaternion.prototype = {
-
-		constructor: Quaternion,
-
-		get x () {
-
-			return this._x;
-
-		},
-
-		set x ( value ) {
-
-			this._x = value;
-			this.onChangeCallback();
-
-		},
-
-		get y () {
-
-			return this._y;
-
-		},
-
-		set y ( value ) {
-
-			this._y = value;
-			this.onChangeCallback();
-
-		},
-
-		get z () {
-
-			return this._z;
-
-		},
-
-		set z ( value ) {
-
-			this._z = value;
-			this.onChangeCallback();
-
-		},
-
-		get w () {
-
-			return this._w;
-
-		},
-
-		set w ( value ) {
-
-			this._w = value;
-			this.onChangeCallback();
-
-		},
-
-		set: function ( x, y, z, w ) {
-
-			this._x = x;
-			this._y = y;
-			this._z = z;
-			this._w = w;
-
-			this.onChangeCallback();
-
-			return this;
-
-		},
-
-		clone: function () {
-
-			return new this.constructor( this._x, this._y, this._z, this._w );
-
-		},
-
-		copy: function ( quaternion ) {
-
-			this._x = quaternion.x;
-			this._y = quaternion.y;
-			this._z = quaternion.z;
-			this._w = quaternion.w;
-
-			this.onChangeCallback();
-
-			return this;
-
-		},
-
-		setFromEuler: function ( euler, update ) {
-
-			if ( (euler && euler.isEuler) === false ) {
-
-				throw new Error( 'THREE.Quaternion: .setFromEuler() now expects an Euler rotation rather than a Vector3 and order.' );
-
-			}
-
-			// http://www.mathworks.com/matlabcentral/fileexchange/
-			// 	20696-function-to-convert-between-dcm-euler-angles-quaternions-and-euler-vectors/
-			//	content/SpinCalc.m
-
-			var c1 = Math.cos( euler._x / 2 );
-			var c2 = Math.cos( euler._y / 2 );
-			var c3 = Math.cos( euler._z / 2 );
-			var s1 = Math.sin( euler._x / 2 );
-			var s2 = Math.sin( euler._y / 2 );
-			var s3 = Math.sin( euler._z / 2 );
-
-			var order = euler.order;
-
-			if ( order === 'XYZ' ) {
-
-				this._x = s1 * c2 * c3 + c1 * s2 * s3;
-				this._y = c1 * s2 * c3 - s1 * c2 * s3;
-				this._z = c1 * c2 * s3 + s1 * s2 * c3;
-				this._w = c1 * c2 * c3 - s1 * s2 * s3;
-
-			} else if ( order === 'YXZ' ) {
-
-				this._x = s1 * c2 * c3 + c1 * s2 * s3;
-				this._y = c1 * s2 * c3 - s1 * c2 * s3;
-				this._z = c1 * c2 * s3 - s1 * s2 * c3;
-				this._w = c1 * c2 * c3 + s1 * s2 * s3;
-
-			} else if ( order === 'ZXY' ) {
-
-				this._x = s1 * c2 * c3 - c1 * s2 * s3;
-				this._y = c1 * s2 * c3 + s1 * c2 * s3;
-				this._z = c1 * c2 * s3 + s1 * s2 * c3;
-				this._w = c1 * c2 * c3 - s1 * s2 * s3;
-
-			} else if ( order === 'ZYX' ) {
-
-				this._x = s1 * c2 * c3 - c1 * s2 * s3;
-				this._y = c1 * s2 * c3 + s1 * c2 * s3;
-				this._z = c1 * c2 * s3 - s1 * s2 * c3;
-				this._w = c1 * c2 * c3 + s1 * s2 * s3;
-
-			} else if ( order === 'YZX' ) {
-
-				this._x = s1 * c2 * c3 + c1 * s2 * s3;
-				this._y = c1 * s2 * c3 + s1 * c2 * s3;
-				this._z = c1 * c2 * s3 - s1 * s2 * c3;
-				this._w = c1 * c2 * c3 - s1 * s2 * s3;
-
-			} else if ( order === 'XZY' ) {
-
-				this._x = s1 * c2 * c3 - c1 * s2 * s3;
-				this._y = c1 * s2 * c3 - s1 * c2 * s3;
-				this._z = c1 * c2 * s3 + s1 * s2 * c3;
-				this._w = c1 * c2 * c3 + s1 * s2 * s3;
-
-			}
-
-			if ( update !== false ) this.onChangeCallback();
-
-			return this;
-
-		},
-
-		setFromAxisAngle: function ( axis, angle ) {
-
-			// http://www.euclideanspace.com/maths/geometry/rotations/conversions/angleToQuaternion/index.htm
-
-			// assumes axis is normalized
-
-			var halfAngle = angle / 2, s = Math.sin( halfAngle );
-
-			this._x = axis.x * s;
-			this._y = axis.y * s;
-			this._z = axis.z * s;
-			this._w = Math.cos( halfAngle );
-
-			this.onChangeCallback();
-
-			return this;
-
-		},
-
-		setFromRotationMatrix: function ( m ) {
-
-			// http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/index.htm
-
-			// assumes the upper 3x3 of m is a pure rotation matrix (i.e, unscaled)
-
-			var te = m.elements,
-
-				m11 = te[ 0 ], m12 = te[ 4 ], m13 = te[ 8 ],
-				m21 = te[ 1 ], m22 = te[ 5 ], m23 = te[ 9 ],
-				m31 = te[ 2 ], m32 = te[ 6 ], m33 = te[ 10 ],
-
-				trace = m11 + m22 + m33,
-				s;
-
-			if ( trace > 0 ) {
-
-				s = 0.5 / Math.sqrt( trace + 1.0 );
-
-				this._w = 0.25 / s;
-				this._x = ( m32 - m23 ) * s;
-				this._y = ( m13 - m31 ) * s;
-				this._z = ( m21 - m12 ) * s;
-
-			} else if ( m11 > m22 && m11 > m33 ) {
-
-				s = 2.0 * Math.sqrt( 1.0 + m11 - m22 - m33 );
-
-				this._w = ( m32 - m23 ) / s;
-				this._x = 0.25 * s;
-				this._y = ( m12 + m21 ) / s;
-				this._z = ( m13 + m31 ) / s;
-
-			} else if ( m22 > m33 ) {
-
-				s = 2.0 * Math.sqrt( 1.0 + m22 - m11 - m33 );
-
-				this._w = ( m13 - m31 ) / s;
-				this._x = ( m12 + m21 ) / s;
-				this._y = 0.25 * s;
-				this._z = ( m23 + m32 ) / s;
-
-			} else {
-
-				s = 2.0 * Math.sqrt( 1.0 + m33 - m11 - m22 );
-
-				this._w = ( m21 - m12 ) / s;
-				this._x = ( m13 + m31 ) / s;
-				this._y = ( m23 + m32 ) / s;
-				this._z = 0.25 * s;
-
-			}
-
-			this.onChangeCallback();
-
-			return this;
-
-		},
-
-		setFromUnitVectors: function () {
-
-			// http://lolengine.net/blog/2014/02/24/quaternion-from-two-vectors-final
-
-			// assumes direction vectors vFrom and vTo are normalized
-
-			var v1, r;
-
-			var EPS = 0.000001;
-
-			return function setFromUnitVectors( vFrom, vTo ) {
-
-				if ( v1 === undefined ) v1 = new Vector3();
-
-				r = vFrom.dot( vTo ) + 1;
-
-				if ( r < EPS ) {
-
-					r = 0;
-
-					if ( Math.abs( vFrom.x ) > Math.abs( vFrom.z ) ) {
-
-						v1.set( - vFrom.y, vFrom.x, 0 );
-
-					} else {
-
-						v1.set( 0, - vFrom.z, vFrom.y );
-
-					}
-
-				} else {
-
-					v1.crossVectors( vFrom, vTo );
-
-				}
-
-				this._x = v1.x;
-				this._y = v1.y;
-				this._z = v1.z;
-				this._w = r;
-
-				return this.normalize();
-
-			};
-
-		}(),
-
-		inverse: function () {
-
-			return this.conjugate().normalize();
-
-		},
-
-		conjugate: function () {
-
-			this._x *= - 1;
-			this._y *= - 1;
-			this._z *= - 1;
-
-			this.onChangeCallback();
-
-			return this;
-
-		},
-
-		dot: function ( v ) {
-
-			return this._x * v._x + this._y * v._y + this._z * v._z + this._w * v._w;
-
-		},
-
-		lengthSq: function () {
-
-			return this._x * this._x + this._y * this._y + this._z * this._z + this._w * this._w;
-
-		},
-
-		length: function () {
-
-			return Math.sqrt( this._x * this._x + this._y * this._y + this._z * this._z + this._w * this._w );
-
-		},
-
-		normalize: function () {
-
-			var l = this.length();
-
-			if ( l === 0 ) {
-
-				this._x = 0;
-				this._y = 0;
-				this._z = 0;
-				this._w = 1;
-
-			} else {
-
-				l = 1 / l;
-
-				this._x = this._x * l;
-				this._y = this._y * l;
-				this._z = this._z * l;
-				this._w = this._w * l;
-
-			}
-
-			this.onChangeCallback();
-
-			return this;
-
-		},
-
-		multiply: function ( q, p ) {
-
-			if ( p !== undefined ) {
-
-				console.warn( 'THREE.Quaternion: .multiply() now only accepts one argument. Use .multiplyQuaternions( a, b ) instead.' );
-				return this.multiplyQuaternions( q, p );
-
-			}
-
-			return this.multiplyQuaternions( this, q );
-
-		},
-
-		premultiply: function ( q ) {
-
-			return this.multiplyQuaternions( q, this );
-
-		},
-
-		multiplyQuaternions: function ( a, b ) {
-
-			// from http://www.euclideanspace.com/maths/algebra/realNormedAlgebra/quaternions/code/index.htm
-
-			var qax = a._x, qay = a._y, qaz = a._z, qaw = a._w;
-			var qbx = b._x, qby = b._y, qbz = b._z, qbw = b._w;
-
-			this._x = qax * qbw + qaw * qbx + qay * qbz - qaz * qby;
-			this._y = qay * qbw + qaw * qby + qaz * qbx - qax * qbz;
-			this._z = qaz * qbw + qaw * qbz + qax * qby - qay * qbx;
-			this._w = qaw * qbw - qax * qbx - qay * qby - qaz * qbz;
-
-			this.onChangeCallback();
-
-			return this;
-
-		},
-
-		slerp: function ( qb, t ) {
-
-			if ( t === 0 ) return this;
-			if ( t === 1 ) return this.copy( qb );
-
-			var x = this._x, y = this._y, z = this._z, w = this._w;
-
-			// http://www.euclideanspace.com/maths/algebra/realNormedAlgebra/quaternions/slerp/
-
-			var cosHalfTheta = w * qb._w + x * qb._x + y * qb._y + z * qb._z;
-
-			if ( cosHalfTheta < 0 ) {
-
-				this._w = - qb._w;
-				this._x = - qb._x;
-				this._y = - qb._y;
-				this._z = - qb._z;
-
-				cosHalfTheta = - cosHalfTheta;
-
-			} else {
-
-				this.copy( qb );
-
-			}
-
-			if ( cosHalfTheta >= 1.0 ) {
-
-				this._w = w;
-				this._x = x;
-				this._y = y;
-				this._z = z;
-
-				return this;
-
-			}
-
-			var sinHalfTheta = Math.sqrt( 1.0 - cosHalfTheta * cosHalfTheta );
-
-			if ( Math.abs( sinHalfTheta ) < 0.001 ) {
-
-				this._w = 0.5 * ( w + this._w );
-				this._x = 0.5 * ( x + this._x );
-				this._y = 0.5 * ( y + this._y );
-				this._z = 0.5 * ( z + this._z );
-
-				return this;
-
-			}
-
-			var halfTheta = Math.atan2( sinHalfTheta, cosHalfTheta );
-			var ratioA = Math.sin( ( 1 - t ) * halfTheta ) / sinHalfTheta,
-			ratioB = Math.sin( t * halfTheta ) / sinHalfTheta;
-
-			this._w = ( w * ratioA + this._w * ratioB );
-			this._x = ( x * ratioA + this._x * ratioB );
-			this._y = ( y * ratioA + this._y * ratioB );
-			this._z = ( z * ratioA + this._z * ratioB );
-
-			this.onChangeCallback();
-
-			return this;
-
-		},
-
-		equals: function ( quaternion ) {
-
-			return ( quaternion._x === this._x ) && ( quaternion._y === this._y ) && ( quaternion._z === this._z ) && ( quaternion._w === this._w );
-
-		},
-
-		fromArray: function ( array, offset ) {
-
-			if ( offset === undefined ) offset = 0;
-
-			this._x = array[ offset ];
-			this._y = array[ offset + 1 ];
-			this._z = array[ offset + 2 ];
-			this._w = array[ offset + 3 ];
-
-			this.onChangeCallback();
-
-			return this;
-
-		},
-
-		toArray: function ( array, offset ) {
-
-			if ( array === undefined ) array = [];
-			if ( offset === undefined ) offset = 0;
-
-			array[ offset ] = this._x;
-			array[ offset + 1 ] = this._y;
-			array[ offset + 2 ] = this._z;
-			array[ offset + 3 ] = this._w;
-
-			return array;
-
-		},
-
-		onChange: function ( callback ) {
-
-			this.onChangeCallback = callback;
-
-			return this;
-
-		},
-
-		onChangeCallback: function () {}
-
-	};
-
-	Object.assign( Quaternion, {
-
-		slerp: function( qa, qb, qm, t ) {
-
-			return qm.copy( qa ).slerp( qb, t );
-
-		},
-
-		slerpFlat: function(
-				dst, dstOffset, src0, srcOffset0, src1, srcOffset1, t ) {
-
-			// fuzz-free, array-based Quaternion SLERP operation
-
-			var x0 = src0[ srcOffset0 + 0 ],
-				y0 = src0[ srcOffset0 + 1 ],
-				z0 = src0[ srcOffset0 + 2 ],
-				w0 = src0[ srcOffset0 + 3 ],
-
-				x1 = src1[ srcOffset1 + 0 ],
-				y1 = src1[ srcOffset1 + 1 ],
-				z1 = src1[ srcOffset1 + 2 ],
-				w1 = src1[ srcOffset1 + 3 ];
-
-			if ( w0 !== w1 || x0 !== x1 || y0 !== y1 || z0 !== z1 ) {
-
-				var s = 1 - t,
-
-					cos = x0 * x1 + y0 * y1 + z0 * z1 + w0 * w1,
-
-					dir = ( cos >= 0 ? 1 : - 1 ),
-					sqrSin = 1 - cos * cos;
-
-				// Skip the Slerp for tiny steps to avoid numeric problems:
-				if ( sqrSin > Number.EPSILON ) {
-
-					var sin = Math.sqrt( sqrSin ),
-						len = Math.atan2( sin, cos * dir );
-
-					s = Math.sin( s * len ) / sin;
-					t = Math.sin( t * len ) / sin;
-
-				}
-
-				var tDir = t * dir;
-
-				x0 = x0 * s + x1 * tDir;
-				y0 = y0 * s + y1 * tDir;
-				z0 = z0 * s + z1 * tDir;
-				w0 = w0 * s + w1 * tDir;
-
-				// Normalize in case we just did a lerp:
-				if ( s === 1 - t ) {
-
-					var f = 1 / Math.sqrt( x0 * x0 + y0 * y0 + z0 * z0 + w0 * w0 );
-
-					x0 *= f;
-					y0 *= f;
-					z0 *= f;
-					w0 *= f;
-
-				}
-
-			}
-
-			dst[ dstOffset ] = x0;
-			dst[ dstOffset + 1 ] = y0;
-			dst[ dstOffset + 2 ] = z0;
-			dst[ dstOffset + 3 ] = w0;
-
-		}
-
-	} );
 
 	/**
 	 * @author mrdoob / http://mrdoob.com/
@@ -2606,7 +2020,7 @@
 
 			// clamp, to handle numerical problems
 
-			return Math.acos( exports.Math.clamp( theta, - 1, 1 ) );
+			return Math.acos( _Math.clamp( theta, - 1, 1 ) );
 
 		},
 
@@ -2719,6 +2133,1232 @@
 			this.z = attribute.array[ index + 2 ];
 
 			return this;
+
+		}
+
+	};
+
+	/**
+	 * @author mikael emtinger / http://gomo.se/
+	 * @author alteredq / http://alteredqualia.com/
+	 * @author WestLangley / http://github.com/WestLangley
+	 * @author bhouston / http://clara.io
+	 */
+
+	function Quaternion( x, y, z, w ) {
+
+		this._x = x || 0;
+		this._y = y || 0;
+		this._z = z || 0;
+		this._w = ( w !== undefined ) ? w : 1;
+
+	}
+
+	Quaternion.prototype = {
+
+		constructor: Quaternion,
+
+		get x () {
+
+			return this._x;
+
+		},
+
+		set x ( value ) {
+
+			this._x = value;
+			this.onChangeCallback();
+
+		},
+
+		get y () {
+
+			return this._y;
+
+		},
+
+		set y ( value ) {
+
+			this._y = value;
+			this.onChangeCallback();
+
+		},
+
+		get z () {
+
+			return this._z;
+
+		},
+
+		set z ( value ) {
+
+			this._z = value;
+			this.onChangeCallback();
+
+		},
+
+		get w () {
+
+			return this._w;
+
+		},
+
+		set w ( value ) {
+
+			this._w = value;
+			this.onChangeCallback();
+
+		},
+
+		set: function ( x, y, z, w ) {
+
+			this._x = x;
+			this._y = y;
+			this._z = z;
+			this._w = w;
+
+			this.onChangeCallback();
+
+			return this;
+
+		},
+
+		clone: function () {
+
+			return new this.constructor( this._x, this._y, this._z, this._w );
+
+		},
+
+		copy: function ( quaternion ) {
+
+			this._x = quaternion.x;
+			this._y = quaternion.y;
+			this._z = quaternion.z;
+			this._w = quaternion.w;
+
+			this.onChangeCallback();
+
+			return this;
+
+		},
+
+		setFromEuler: function ( euler, update ) {
+
+			if ( (euler && euler.isEuler) === false ) {
+
+				throw new Error( 'THREE.Quaternion: .setFromEuler() now expects an Euler rotation rather than a Vector3 and order.' );
+
+			}
+
+			// http://www.mathworks.com/matlabcentral/fileexchange/
+			// 	20696-function-to-convert-between-dcm-euler-angles-quaternions-and-euler-vectors/
+			//	content/SpinCalc.m
+
+			var c1 = Math.cos( euler._x / 2 );
+			var c2 = Math.cos( euler._y / 2 );
+			var c3 = Math.cos( euler._z / 2 );
+			var s1 = Math.sin( euler._x / 2 );
+			var s2 = Math.sin( euler._y / 2 );
+			var s3 = Math.sin( euler._z / 2 );
+
+			var order = euler.order;
+
+			if ( order === 'XYZ' ) {
+
+				this._x = s1 * c2 * c3 + c1 * s2 * s3;
+				this._y = c1 * s2 * c3 - s1 * c2 * s3;
+				this._z = c1 * c2 * s3 + s1 * s2 * c3;
+				this._w = c1 * c2 * c3 - s1 * s2 * s3;
+
+			} else if ( order === 'YXZ' ) {
+
+				this._x = s1 * c2 * c3 + c1 * s2 * s3;
+				this._y = c1 * s2 * c3 - s1 * c2 * s3;
+				this._z = c1 * c2 * s3 - s1 * s2 * c3;
+				this._w = c1 * c2 * c3 + s1 * s2 * s3;
+
+			} else if ( order === 'ZXY' ) {
+
+				this._x = s1 * c2 * c3 - c1 * s2 * s3;
+				this._y = c1 * s2 * c3 + s1 * c2 * s3;
+				this._z = c1 * c2 * s3 + s1 * s2 * c3;
+				this._w = c1 * c2 * c3 - s1 * s2 * s3;
+
+			} else if ( order === 'ZYX' ) {
+
+				this._x = s1 * c2 * c3 - c1 * s2 * s3;
+				this._y = c1 * s2 * c3 + s1 * c2 * s3;
+				this._z = c1 * c2 * s3 - s1 * s2 * c3;
+				this._w = c1 * c2 * c3 + s1 * s2 * s3;
+
+			} else if ( order === 'YZX' ) {
+
+				this._x = s1 * c2 * c3 + c1 * s2 * s3;
+				this._y = c1 * s2 * c3 + s1 * c2 * s3;
+				this._z = c1 * c2 * s3 - s1 * s2 * c3;
+				this._w = c1 * c2 * c3 - s1 * s2 * s3;
+
+			} else if ( order === 'XZY' ) {
+
+				this._x = s1 * c2 * c3 - c1 * s2 * s3;
+				this._y = c1 * s2 * c3 - s1 * c2 * s3;
+				this._z = c1 * c2 * s3 + s1 * s2 * c3;
+				this._w = c1 * c2 * c3 + s1 * s2 * s3;
+
+			}
+
+			if ( update !== false ) this.onChangeCallback();
+
+			return this;
+
+		},
+
+		setFromAxisAngle: function ( axis, angle ) {
+
+			// http://www.euclideanspace.com/maths/geometry/rotations/conversions/angleToQuaternion/index.htm
+
+			// assumes axis is normalized
+
+			var halfAngle = angle / 2, s = Math.sin( halfAngle );
+
+			this._x = axis.x * s;
+			this._y = axis.y * s;
+			this._z = axis.z * s;
+			this._w = Math.cos( halfAngle );
+
+			this.onChangeCallback();
+
+			return this;
+
+		},
+
+		setFromRotationMatrix: function ( m ) {
+
+			// http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/index.htm
+
+			// assumes the upper 3x3 of m is a pure rotation matrix (i.e, unscaled)
+
+			var te = m.elements,
+
+				m11 = te[ 0 ], m12 = te[ 4 ], m13 = te[ 8 ],
+				m21 = te[ 1 ], m22 = te[ 5 ], m23 = te[ 9 ],
+				m31 = te[ 2 ], m32 = te[ 6 ], m33 = te[ 10 ],
+
+				trace = m11 + m22 + m33,
+				s;
+
+			if ( trace > 0 ) {
+
+				s = 0.5 / Math.sqrt( trace + 1.0 );
+
+				this._w = 0.25 / s;
+				this._x = ( m32 - m23 ) * s;
+				this._y = ( m13 - m31 ) * s;
+				this._z = ( m21 - m12 ) * s;
+
+			} else if ( m11 > m22 && m11 > m33 ) {
+
+				s = 2.0 * Math.sqrt( 1.0 + m11 - m22 - m33 );
+
+				this._w = ( m32 - m23 ) / s;
+				this._x = 0.25 * s;
+				this._y = ( m12 + m21 ) / s;
+				this._z = ( m13 + m31 ) / s;
+
+			} else if ( m22 > m33 ) {
+
+				s = 2.0 * Math.sqrt( 1.0 + m22 - m11 - m33 );
+
+				this._w = ( m13 - m31 ) / s;
+				this._x = ( m12 + m21 ) / s;
+				this._y = 0.25 * s;
+				this._z = ( m23 + m32 ) / s;
+
+			} else {
+
+				s = 2.0 * Math.sqrt( 1.0 + m33 - m11 - m22 );
+
+				this._w = ( m21 - m12 ) / s;
+				this._x = ( m13 + m31 ) / s;
+				this._y = ( m23 + m32 ) / s;
+				this._z = 0.25 * s;
+
+			}
+
+			this.onChangeCallback();
+
+			return this;
+
+		},
+
+		setFromUnitVectors: function () {
+
+			// http://lolengine.net/blog/2014/02/24/quaternion-from-two-vectors-final
+
+			// assumes direction vectors vFrom and vTo are normalized
+
+			var v1, r;
+
+			var EPS = 0.000001;
+
+			return function setFromUnitVectors( vFrom, vTo ) {
+
+				if ( v1 === undefined ) v1 = new Vector3();
+
+				r = vFrom.dot( vTo ) + 1;
+
+				if ( r < EPS ) {
+
+					r = 0;
+
+					if ( Math.abs( vFrom.x ) > Math.abs( vFrom.z ) ) {
+
+						v1.set( - vFrom.y, vFrom.x, 0 );
+
+					} else {
+
+						v1.set( 0, - vFrom.z, vFrom.y );
+
+					}
+
+				} else {
+
+					v1.crossVectors( vFrom, vTo );
+
+				}
+
+				this._x = v1.x;
+				this._y = v1.y;
+				this._z = v1.z;
+				this._w = r;
+
+				return this.normalize();
+
+			};
+
+		}(),
+
+		inverse: function () {
+
+			return this.conjugate().normalize();
+
+		},
+
+		conjugate: function () {
+
+			this._x *= - 1;
+			this._y *= - 1;
+			this._z *= - 1;
+
+			this.onChangeCallback();
+
+			return this;
+
+		},
+
+		dot: function ( v ) {
+
+			return this._x * v._x + this._y * v._y + this._z * v._z + this._w * v._w;
+
+		},
+
+		lengthSq: function () {
+
+			return this._x * this._x + this._y * this._y + this._z * this._z + this._w * this._w;
+
+		},
+
+		length: function () {
+
+			return Math.sqrt( this._x * this._x + this._y * this._y + this._z * this._z + this._w * this._w );
+
+		},
+
+		normalize: function () {
+
+			var l = this.length();
+
+			if ( l === 0 ) {
+
+				this._x = 0;
+				this._y = 0;
+				this._z = 0;
+				this._w = 1;
+
+			} else {
+
+				l = 1 / l;
+
+				this._x = this._x * l;
+				this._y = this._y * l;
+				this._z = this._z * l;
+				this._w = this._w * l;
+
+			}
+
+			this.onChangeCallback();
+
+			return this;
+
+		},
+
+		multiply: function ( q, p ) {
+
+			if ( p !== undefined ) {
+
+				console.warn( 'THREE.Quaternion: .multiply() now only accepts one argument. Use .multiplyQuaternions( a, b ) instead.' );
+				return this.multiplyQuaternions( q, p );
+
+			}
+
+			return this.multiplyQuaternions( this, q );
+
+		},
+
+		premultiply: function ( q ) {
+
+			return this.multiplyQuaternions( q, this );
+
+		},
+
+		multiplyQuaternions: function ( a, b ) {
+
+			// from http://www.euclideanspace.com/maths/algebra/realNormedAlgebra/quaternions/code/index.htm
+
+			var qax = a._x, qay = a._y, qaz = a._z, qaw = a._w;
+			var qbx = b._x, qby = b._y, qbz = b._z, qbw = b._w;
+
+			this._x = qax * qbw + qaw * qbx + qay * qbz - qaz * qby;
+			this._y = qay * qbw + qaw * qby + qaz * qbx - qax * qbz;
+			this._z = qaz * qbw + qaw * qbz + qax * qby - qay * qbx;
+			this._w = qaw * qbw - qax * qbx - qay * qby - qaz * qbz;
+
+			this.onChangeCallback();
+
+			return this;
+
+		},
+
+		slerp: function ( qb, t ) {
+
+			if ( t === 0 ) return this;
+			if ( t === 1 ) return this.copy( qb );
+
+			var x = this._x, y = this._y, z = this._z, w = this._w;
+
+			// http://www.euclideanspace.com/maths/algebra/realNormedAlgebra/quaternions/slerp/
+
+			var cosHalfTheta = w * qb._w + x * qb._x + y * qb._y + z * qb._z;
+
+			if ( cosHalfTheta < 0 ) {
+
+				this._w = - qb._w;
+				this._x = - qb._x;
+				this._y = - qb._y;
+				this._z = - qb._z;
+
+				cosHalfTheta = - cosHalfTheta;
+
+			} else {
+
+				this.copy( qb );
+
+			}
+
+			if ( cosHalfTheta >= 1.0 ) {
+
+				this._w = w;
+				this._x = x;
+				this._y = y;
+				this._z = z;
+
+				return this;
+
+			}
+
+			var sinHalfTheta = Math.sqrt( 1.0 - cosHalfTheta * cosHalfTheta );
+
+			if ( Math.abs( sinHalfTheta ) < 0.001 ) {
+
+				this._w = 0.5 * ( w + this._w );
+				this._x = 0.5 * ( x + this._x );
+				this._y = 0.5 * ( y + this._y );
+				this._z = 0.5 * ( z + this._z );
+
+				return this;
+
+			}
+
+			var halfTheta = Math.atan2( sinHalfTheta, cosHalfTheta );
+			var ratioA = Math.sin( ( 1 - t ) * halfTheta ) / sinHalfTheta,
+			ratioB = Math.sin( t * halfTheta ) / sinHalfTheta;
+
+			this._w = ( w * ratioA + this._w * ratioB );
+			this._x = ( x * ratioA + this._x * ratioB );
+			this._y = ( y * ratioA + this._y * ratioB );
+			this._z = ( z * ratioA + this._z * ratioB );
+
+			this.onChangeCallback();
+
+			return this;
+
+		},
+
+		equals: function ( quaternion ) {
+
+			return ( quaternion._x === this._x ) && ( quaternion._y === this._y ) && ( quaternion._z === this._z ) && ( quaternion._w === this._w );
+
+		},
+
+		fromArray: function ( array, offset ) {
+
+			if ( offset === undefined ) offset = 0;
+
+			this._x = array[ offset ];
+			this._y = array[ offset + 1 ];
+			this._z = array[ offset + 2 ];
+			this._w = array[ offset + 3 ];
+
+			this.onChangeCallback();
+
+			return this;
+
+		},
+
+		toArray: function ( array, offset ) {
+
+			if ( array === undefined ) array = [];
+			if ( offset === undefined ) offset = 0;
+
+			array[ offset ] = this._x;
+			array[ offset + 1 ] = this._y;
+			array[ offset + 2 ] = this._z;
+			array[ offset + 3 ] = this._w;
+
+			return array;
+
+		},
+
+		onChange: function ( callback ) {
+
+			this.onChangeCallback = callback;
+
+			return this;
+
+		},
+
+		onChangeCallback: function () {}
+
+	};
+
+	Object.assign( Quaternion, {
+
+		slerp: function( qa, qb, qm, t ) {
+
+			return qm.copy( qa ).slerp( qb, t );
+
+		},
+
+		slerpFlat: function(
+				dst, dstOffset, src0, srcOffset0, src1, srcOffset1, t ) {
+
+			// fuzz-free, array-based Quaternion SLERP operation
+
+			var x0 = src0[ srcOffset0 + 0 ],
+				y0 = src0[ srcOffset0 + 1 ],
+				z0 = src0[ srcOffset0 + 2 ],
+				w0 = src0[ srcOffset0 + 3 ],
+
+				x1 = src1[ srcOffset1 + 0 ],
+				y1 = src1[ srcOffset1 + 1 ],
+				z1 = src1[ srcOffset1 + 2 ],
+				w1 = src1[ srcOffset1 + 3 ];
+
+			if ( w0 !== w1 || x0 !== x1 || y0 !== y1 || z0 !== z1 ) {
+
+				var s = 1 - t,
+
+					cos = x0 * x1 + y0 * y1 + z0 * z1 + w0 * w1,
+
+					dir = ( cos >= 0 ? 1 : - 1 ),
+					sqrSin = 1 - cos * cos;
+
+				// Skip the Slerp for tiny steps to avoid numeric problems:
+				if ( sqrSin > Number.EPSILON ) {
+
+					var sin = Math.sqrt( sqrSin ),
+						len = Math.atan2( sin, cos * dir );
+
+					s = Math.sin( s * len ) / sin;
+					t = Math.sin( t * len ) / sin;
+
+				}
+
+				var tDir = t * dir;
+
+				x0 = x0 * s + x1 * tDir;
+				y0 = y0 * s + y1 * tDir;
+				z0 = z0 * s + z1 * tDir;
+				w0 = w0 * s + w1 * tDir;
+
+				// Normalize in case we just did a lerp:
+				if ( s === 1 - t ) {
+
+					var f = 1 / Math.sqrt( x0 * x0 + y0 * y0 + z0 * z0 + w0 * w0 );
+
+					x0 *= f;
+					y0 *= f;
+					z0 *= f;
+					w0 *= f;
+
+				}
+
+			}
+
+			dst[ dstOffset ] = x0;
+			dst[ dstOffset + 1 ] = y0;
+			dst[ dstOffset + 2 ] = z0;
+			dst[ dstOffset + 3 ] = w0;
+
+		}
+
+	} );
+
+	/**
+	 * @author mrdoob / http://mrdoob.com/
+	 * @author WestLangley / http://github.com/WestLangley
+	 * @author bhouston / http://clara.io
+	 */
+
+	function Euler( x, y, z, order ) {
+
+		this._x = x || 0;
+		this._y = y || 0;
+		this._z = z || 0;
+		this._order = order || Euler.DefaultOrder;
+
+	}
+
+	Euler.RotationOrders = [ 'XYZ', 'YZX', 'ZXY', 'XZY', 'YXZ', 'ZYX' ];
+
+	Euler.DefaultOrder = 'XYZ';
+
+	Euler.prototype = {
+
+		constructor: Euler,
+
+		isEuler: true,
+
+		get x () {
+
+			return this._x;
+
+		},
+
+		set x ( value ) {
+
+			this._x = value;
+			this.onChangeCallback();
+
+		},
+
+		get y () {
+
+			return this._y;
+
+		},
+
+		set y ( value ) {
+
+			this._y = value;
+			this.onChangeCallback();
+
+		},
+
+		get z () {
+
+			return this._z;
+
+		},
+
+		set z ( value ) {
+
+			this._z = value;
+			this.onChangeCallback();
+
+		},
+
+		get order () {
+
+			return this._order;
+
+		},
+
+		set order ( value ) {
+
+			this._order = value;
+			this.onChangeCallback();
+
+		},
+
+		set: function ( x, y, z, order ) {
+
+			this._x = x;
+			this._y = y;
+			this._z = z;
+			this._order = order || this._order;
+
+			this.onChangeCallback();
+
+			return this;
+
+		},
+
+		clone: function () {
+
+			return new this.constructor( this._x, this._y, this._z, this._order );
+
+		},
+
+		copy: function ( euler ) {
+
+			this._x = euler._x;
+			this._y = euler._y;
+			this._z = euler._z;
+			this._order = euler._order;
+
+			this.onChangeCallback();
+
+			return this;
+
+		},
+
+		setFromRotationMatrix: function ( m, order, update ) {
+
+			var clamp = _Math.clamp;
+
+			// assumes the upper 3x3 of m is a pure rotation matrix (i.e, unscaled)
+
+			var te = m.elements;
+			var m11 = te[ 0 ], m12 = te[ 4 ], m13 = te[ 8 ];
+			var m21 = te[ 1 ], m22 = te[ 5 ], m23 = te[ 9 ];
+			var m31 = te[ 2 ], m32 = te[ 6 ], m33 = te[ 10 ];
+
+			order = order || this._order;
+
+			if ( order === 'XYZ' ) {
+
+				this._y = Math.asin( clamp( m13, - 1, 1 ) );
+
+				if ( Math.abs( m13 ) < 0.99999 ) {
+
+					this._x = Math.atan2( - m23, m33 );
+					this._z = Math.atan2( - m12, m11 );
+
+				} else {
+
+					this._x = Math.atan2( m32, m22 );
+					this._z = 0;
+
+				}
+
+			} else if ( order === 'YXZ' ) {
+
+				this._x = Math.asin( - clamp( m23, - 1, 1 ) );
+
+				if ( Math.abs( m23 ) < 0.99999 ) {
+
+					this._y = Math.atan2( m13, m33 );
+					this._z = Math.atan2( m21, m22 );
+
+				} else {
+
+					this._y = Math.atan2( - m31, m11 );
+					this._z = 0;
+
+				}
+
+			} else if ( order === 'ZXY' ) {
+
+				this._x = Math.asin( clamp( m32, - 1, 1 ) );
+
+				if ( Math.abs( m32 ) < 0.99999 ) {
+
+					this._y = Math.atan2( - m31, m33 );
+					this._z = Math.atan2( - m12, m22 );
+
+				} else {
+
+					this._y = 0;
+					this._z = Math.atan2( m21, m11 );
+
+				}
+
+			} else if ( order === 'ZYX' ) {
+
+				this._y = Math.asin( - clamp( m31, - 1, 1 ) );
+
+				if ( Math.abs( m31 ) < 0.99999 ) {
+
+					this._x = Math.atan2( m32, m33 );
+					this._z = Math.atan2( m21, m11 );
+
+				} else {
+
+					this._x = 0;
+					this._z = Math.atan2( - m12, m22 );
+
+				}
+
+			} else if ( order === 'YZX' ) {
+
+				this._z = Math.asin( clamp( m21, - 1, 1 ) );
+
+				if ( Math.abs( m21 ) < 0.99999 ) {
+
+					this._x = Math.atan2( - m23, m22 );
+					this._y = Math.atan2( - m31, m11 );
+
+				} else {
+
+					this._x = 0;
+					this._y = Math.atan2( m13, m33 );
+
+				}
+
+			} else if ( order === 'XZY' ) {
+
+				this._z = Math.asin( - clamp( m12, - 1, 1 ) );
+
+				if ( Math.abs( m12 ) < 0.99999 ) {
+
+					this._x = Math.atan2( m32, m22 );
+					this._y = Math.atan2( m13, m11 );
+
+				} else {
+
+					this._x = Math.atan2( - m23, m33 );
+					this._y = 0;
+
+				}
+
+			} else {
+
+				console.warn( 'THREE.Euler: .setFromRotationMatrix() given unsupported order: ' + order );
+
+			}
+
+			this._order = order;
+
+			if ( update !== false ) this.onChangeCallback();
+
+			return this;
+
+		},
+
+		setFromQuaternion: function () {
+
+			var matrix;
+
+			return function setFromQuaternion( q, order, update ) {
+
+				if ( matrix === undefined ) matrix = new Matrix4();
+
+				matrix.makeRotationFromQuaternion( q );
+
+				return this.setFromRotationMatrix( matrix, order, update );
+
+			};
+
+		}(),
+
+		setFromVector3: function ( v, order ) {
+
+			return this.set( v.x, v.y, v.z, order || this._order );
+
+		},
+
+		reorder: function () {
+
+			// WARNING: this discards revolution information -bhouston
+
+			var q = new Quaternion();
+
+			return function reorder( newOrder ) {
+
+				q.setFromEuler( this );
+
+				return this.setFromQuaternion( q, newOrder );
+
+			};
+
+		}(),
+
+		equals: function ( euler ) {
+
+			return ( euler._x === this._x ) && ( euler._y === this._y ) && ( euler._z === this._z ) && ( euler._order === this._order );
+
+		},
+
+		fromArray: function ( array ) {
+
+			this._x = array[ 0 ];
+			this._y = array[ 1 ];
+			this._z = array[ 2 ];
+			if ( array[ 3 ] !== undefined ) this._order = array[ 3 ];
+
+			this.onChangeCallback();
+
+			return this;
+
+		},
+
+		toArray: function ( array, offset ) {
+
+			if ( array === undefined ) array = [];
+			if ( offset === undefined ) offset = 0;
+
+			array[ offset ] = this._x;
+			array[ offset + 1 ] = this._y;
+			array[ offset + 2 ] = this._z;
+			array[ offset + 3 ] = this._order;
+
+			return array;
+
+		},
+
+		toVector3: function ( optionalResult ) {
+
+			if ( optionalResult ) {
+
+				return optionalResult.set( this._x, this._y, this._z );
+
+			} else {
+
+				return new Vector3( this._x, this._y, this._z );
+
+			}
+
+		},
+
+		onChange: function ( callback ) {
+
+			this.onChangeCallback = callback;
+
+			return this;
+
+		},
+
+		onChangeCallback: function () {}
+
+	};
+
+	/**
+	 * @author alteredq / http://alteredqualia.com/
+	 * @author WestLangley / http://github.com/WestLangley
+	 * @author bhouston / http://clara.io
+	 * @author tschw
+	 */
+
+	function Matrix3() {
+
+		this.elements = new Float32Array( [
+
+			1, 0, 0,
+			0, 1, 0,
+			0, 0, 1
+
+		] );
+
+		if ( arguments.length > 0 ) {
+
+			console.error( 'THREE.Matrix3: the constructor no longer reads arguments. use .set() instead.' );
+
+		}
+
+	}
+
+	Matrix3.prototype = {
+
+		constructor: Matrix3,
+
+		isMatrix3: true,
+
+		set: function ( n11, n12, n13, n21, n22, n23, n31, n32, n33 ) {
+
+			var te = this.elements;
+
+			te[ 0 ] = n11; te[ 1 ] = n21; te[ 2 ] = n31;
+			te[ 3 ] = n12; te[ 4 ] = n22; te[ 5 ] = n32;
+			te[ 6 ] = n13; te[ 7 ] = n23; te[ 8 ] = n33;
+
+			return this;
+
+		},
+
+		identity: function () {
+
+			this.set(
+
+				1, 0, 0,
+				0, 1, 0,
+				0, 0, 1
+
+			);
+
+			return this;
+
+		},
+
+		clone: function () {
+
+			return new this.constructor().fromArray( this.elements );
+
+		},
+
+		copy: function ( m ) {
+
+			var me = m.elements;
+
+			this.set(
+
+				me[ 0 ], me[ 3 ], me[ 6 ],
+				me[ 1 ], me[ 4 ], me[ 7 ],
+				me[ 2 ], me[ 5 ], me[ 8 ]
+
+			);
+
+			return this;
+
+		},
+
+		setFromMatrix4: function( m ) {
+
+			var me = m.elements;
+
+			this.set(
+
+				me[ 0 ], me[ 4 ], me[  8 ],
+				me[ 1 ], me[ 5 ], me[  9 ],
+				me[ 2 ], me[ 6 ], me[ 10 ]
+
+			);
+
+			return this;
+
+		},
+
+		applyToVector3Array: function () {
+
+			var v1;
+
+			return function applyToVector3Array( array, offset, length ) {
+
+				if ( v1 === undefined ) v1 = new Vector3();
+				if ( offset === undefined ) offset = 0;
+				if ( length === undefined ) length = array.length;
+
+				for ( var i = 0, j = offset; i < length; i += 3, j += 3 ) {
+
+					v1.fromArray( array, j );
+					v1.applyMatrix3( this );
+					v1.toArray( array, j );
+
+				}
+
+				return array;
+
+			};
+
+		}(),
+
+		applyToBuffer: function () {
+
+			var v1;
+
+			return function applyToBuffer( buffer, offset, length ) {
+
+				if ( v1 === undefined ) v1 = new Vector3();
+				if ( offset === undefined ) offset = 0;
+				if ( length === undefined ) length = buffer.length / buffer.itemSize;
+
+				for ( var i = 0, j = offset; i < length; i ++, j ++ ) {
+
+					v1.x = buffer.getX( j );
+					v1.y = buffer.getY( j );
+					v1.z = buffer.getZ( j );
+
+					v1.applyMatrix3( this );
+
+					buffer.setXYZ( j, v1.x, v1.y, v1.z );
+
+				}
+
+				return buffer;
+
+			};
+
+		}(),
+
+		multiplyScalar: function ( s ) {
+
+			var te = this.elements;
+
+			te[ 0 ] *= s; te[ 3 ] *= s; te[ 6 ] *= s;
+			te[ 1 ] *= s; te[ 4 ] *= s; te[ 7 ] *= s;
+			te[ 2 ] *= s; te[ 5 ] *= s; te[ 8 ] *= s;
+
+			return this;
+
+		},
+
+		determinant: function () {
+
+			var te = this.elements;
+
+			var a = te[ 0 ], b = te[ 1 ], c = te[ 2 ],
+				d = te[ 3 ], e = te[ 4 ], f = te[ 5 ],
+				g = te[ 6 ], h = te[ 7 ], i = te[ 8 ];
+
+			return a * e * i - a * f * h - b * d * i + b * f * g + c * d * h - c * e * g;
+
+		},
+
+		getInverse: function ( matrix, throwOnDegenerate ) {
+
+			if ( (matrix && matrix.isMatrix4) ) {
+
+				console.error( "THREE.Matrix3.getInverse no longer takes a Matrix4 argument." );
+
+			}
+
+			var me = matrix.elements,
+				te = this.elements,
+
+				n11 = me[ 0 ], n21 = me[ 1 ], n31 = me[ 2 ],
+				n12 = me[ 3 ], n22 = me[ 4 ], n32 = me[ 5 ],
+				n13 = me[ 6 ], n23 = me[ 7 ], n33 = me[ 8 ],
+
+				t11 = n33 * n22 - n32 * n23,
+				t12 = n32 * n13 - n33 * n12,
+				t13 = n23 * n12 - n22 * n13,
+
+				det = n11 * t11 + n21 * t12 + n31 * t13;
+
+			if ( det === 0 ) {
+
+				var msg = "THREE.Matrix3.getInverse(): can't invert matrix, determinant is 0";
+
+				if ( throwOnDegenerate === true ) {
+
+					throw new Error( msg );
+
+				} else {
+
+					console.warn( msg );
+
+				}
+
+				return this.identity();
+			}
+
+			var detInv = 1 / det;
+
+			te[ 0 ] = t11 * detInv;
+			te[ 1 ] = ( n31 * n23 - n33 * n21 ) * detInv;
+			te[ 2 ] = ( n32 * n21 - n31 * n22 ) * detInv;
+
+			te[ 3 ] = t12 * detInv;
+			te[ 4 ] = ( n33 * n11 - n31 * n13 ) * detInv;
+			te[ 5 ] = ( n31 * n12 - n32 * n11 ) * detInv;
+
+			te[ 6 ] = t13 * detInv;
+			te[ 7 ] = ( n21 * n13 - n23 * n11 ) * detInv;
+			te[ 8 ] = ( n22 * n11 - n21 * n12 ) * detInv;
+
+			return this;
+
+		},
+
+		transpose: function () {
+
+			var tmp, m = this.elements;
+
+			tmp = m[ 1 ]; m[ 1 ] = m[ 3 ]; m[ 3 ] = tmp;
+			tmp = m[ 2 ]; m[ 2 ] = m[ 6 ]; m[ 6 ] = tmp;
+			tmp = m[ 5 ]; m[ 5 ] = m[ 7 ]; m[ 7 ] = tmp;
+
+			return this;
+
+		},
+
+		flattenToArrayOffset: function ( array, offset ) {
+
+			console.warn( "THREE.Matrix3: .flattenToArrayOffset is deprecated " +
+					"- just use .toArray instead." );
+
+			return this.toArray( array, offset );
+
+		},
+
+		getNormalMatrix: function ( matrix4 ) {
+
+			return this.setFromMatrix4( matrix4 ).getInverse( this ).transpose();
+
+		},
+
+		transposeIntoArray: function ( r ) {
+
+			var m = this.elements;
+
+			r[ 0 ] = m[ 0 ];
+			r[ 1 ] = m[ 3 ];
+			r[ 2 ] = m[ 6 ];
+			r[ 3 ] = m[ 1 ];
+			r[ 4 ] = m[ 4 ];
+			r[ 5 ] = m[ 7 ];
+			r[ 6 ] = m[ 2 ];
+			r[ 7 ] = m[ 5 ];
+			r[ 8 ] = m[ 8 ];
+
+			return this;
+
+		},
+
+		fromArray: function ( array, offset ) {
+
+			if ( offset === undefined ) offset = 0;
+
+			for( var i = 0; i < 9; i ++ ) {
+
+				this.elements[ i ] = array[ i + offset ];
+
+			}
+
+			return this;
+
+		},
+
+		toArray: function ( array, offset ) {
+
+			if ( array === undefined ) array = [];
+			if ( offset === undefined ) offset = 0;
+
+			var te = this.elements;
+
+			array[ offset ] = te[ 0 ];
+			array[ offset + 1 ] = te[ 1 ];
+			array[ offset + 2 ] = te[ 2 ];
+
+			array[ offset + 3 ] = te[ 3 ];
+			array[ offset + 4 ] = te[ 4 ];
+			array[ offset + 5 ] = te[ 5 ];
+
+			array[ offset + 6 ] = te[ 6 ];
+			array[ offset + 7 ] = te[ 7 ];
+			array[ offset + 8 ]  = te[ 8 ];
+
+			return array;
 
 		}
 
@@ -4495,335 +5135,6 @@
 
 	/**
 	 * @author mrdoob / http://mrdoob.com/
-	 * @author WestLangley / http://github.com/WestLangley
-	 * @author bhouston / http://clara.io
-	 */
-
-	function Euler( x, y, z, order ) {
-
-		this._x = x || 0;
-		this._y = y || 0;
-		this._z = z || 0;
-		this._order = order || Euler.DefaultOrder;
-
-	}
-
-	Euler.RotationOrders = [ 'XYZ', 'YZX', 'ZXY', 'XZY', 'YXZ', 'ZYX' ];
-
-	Euler.DefaultOrder = 'XYZ';
-
-	Euler.prototype = {
-
-		constructor: Euler,
-
-		isEuler: true,
-
-		get x () {
-
-			return this._x;
-
-		},
-
-		set x ( value ) {
-
-			this._x = value;
-			this.onChangeCallback();
-
-		},
-
-		get y () {
-
-			return this._y;
-
-		},
-
-		set y ( value ) {
-
-			this._y = value;
-			this.onChangeCallback();
-
-		},
-
-		get z () {
-
-			return this._z;
-
-		},
-
-		set z ( value ) {
-
-			this._z = value;
-			this.onChangeCallback();
-
-		},
-
-		get order () {
-
-			return this._order;
-
-		},
-
-		set order ( value ) {
-
-			this._order = value;
-			this.onChangeCallback();
-
-		},
-
-		set: function ( x, y, z, order ) {
-
-			this._x = x;
-			this._y = y;
-			this._z = z;
-			this._order = order || this._order;
-
-			this.onChangeCallback();
-
-			return this;
-
-		},
-
-		clone: function () {
-
-			return new this.constructor( this._x, this._y, this._z, this._order );
-
-		},
-
-		copy: function ( euler ) {
-
-			this._x = euler._x;
-			this._y = euler._y;
-			this._z = euler._z;
-			this._order = euler._order;
-
-			this.onChangeCallback();
-
-			return this;
-
-		},
-
-		setFromRotationMatrix: function ( m, order, update ) {
-
-			var clamp = exports.Math.clamp;
-
-			// assumes the upper 3x3 of m is a pure rotation matrix (i.e, unscaled)
-
-			var te = m.elements;
-			var m11 = te[ 0 ], m12 = te[ 4 ], m13 = te[ 8 ];
-			var m21 = te[ 1 ], m22 = te[ 5 ], m23 = te[ 9 ];
-			var m31 = te[ 2 ], m32 = te[ 6 ], m33 = te[ 10 ];
-
-			order = order || this._order;
-
-			if ( order === 'XYZ' ) {
-
-				this._y = Math.asin( clamp( m13, - 1, 1 ) );
-
-				if ( Math.abs( m13 ) < 0.99999 ) {
-
-					this._x = Math.atan2( - m23, m33 );
-					this._z = Math.atan2( - m12, m11 );
-
-				} else {
-
-					this._x = Math.atan2( m32, m22 );
-					this._z = 0;
-
-				}
-
-			} else if ( order === 'YXZ' ) {
-
-				this._x = Math.asin( - clamp( m23, - 1, 1 ) );
-
-				if ( Math.abs( m23 ) < 0.99999 ) {
-
-					this._y = Math.atan2( m13, m33 );
-					this._z = Math.atan2( m21, m22 );
-
-				} else {
-
-					this._y = Math.atan2( - m31, m11 );
-					this._z = 0;
-
-				}
-
-			} else if ( order === 'ZXY' ) {
-
-				this._x = Math.asin( clamp( m32, - 1, 1 ) );
-
-				if ( Math.abs( m32 ) < 0.99999 ) {
-
-					this._y = Math.atan2( - m31, m33 );
-					this._z = Math.atan2( - m12, m22 );
-
-				} else {
-
-					this._y = 0;
-					this._z = Math.atan2( m21, m11 );
-
-				}
-
-			} else if ( order === 'ZYX' ) {
-
-				this._y = Math.asin( - clamp( m31, - 1, 1 ) );
-
-				if ( Math.abs( m31 ) < 0.99999 ) {
-
-					this._x = Math.atan2( m32, m33 );
-					this._z = Math.atan2( m21, m11 );
-
-				} else {
-
-					this._x = 0;
-					this._z = Math.atan2( - m12, m22 );
-
-				}
-
-			} else if ( order === 'YZX' ) {
-
-				this._z = Math.asin( clamp( m21, - 1, 1 ) );
-
-				if ( Math.abs( m21 ) < 0.99999 ) {
-
-					this._x = Math.atan2( - m23, m22 );
-					this._y = Math.atan2( - m31, m11 );
-
-				} else {
-
-					this._x = 0;
-					this._y = Math.atan2( m13, m33 );
-
-				}
-
-			} else if ( order === 'XZY' ) {
-
-				this._z = Math.asin( - clamp( m12, - 1, 1 ) );
-
-				if ( Math.abs( m12 ) < 0.99999 ) {
-
-					this._x = Math.atan2( m32, m22 );
-					this._y = Math.atan2( m13, m11 );
-
-				} else {
-
-					this._x = Math.atan2( - m23, m33 );
-					this._y = 0;
-
-				}
-
-			} else {
-
-				console.warn( 'THREE.Euler: .setFromRotationMatrix() given unsupported order: ' + order );
-
-			}
-
-			this._order = order;
-
-			if ( update !== false ) this.onChangeCallback();
-
-			return this;
-
-		},
-
-		setFromQuaternion: function () {
-
-			var matrix;
-
-			return function setFromQuaternion( q, order, update ) {
-
-				if ( matrix === undefined ) matrix = new Matrix4();
-
-				matrix.makeRotationFromQuaternion( q );
-
-				return this.setFromRotationMatrix( matrix, order, update );
-
-			};
-
-		}(),
-
-		setFromVector3: function ( v, order ) {
-
-			return this.set( v.x, v.y, v.z, order || this._order );
-
-		},
-
-		reorder: function () {
-
-			// WARNING: this discards revolution information -bhouston
-
-			var q = new Quaternion();
-
-			return function reorder( newOrder ) {
-
-				q.setFromEuler( this );
-
-				return this.setFromQuaternion( q, newOrder );
-
-			};
-
-		}(),
-
-		equals: function ( euler ) {
-
-			return ( euler._x === this._x ) && ( euler._y === this._y ) && ( euler._z === this._z ) && ( euler._order === this._order );
-
-		},
-
-		fromArray: function ( array ) {
-
-			this._x = array[ 0 ];
-			this._y = array[ 1 ];
-			this._z = array[ 2 ];
-			if ( array[ 3 ] !== undefined ) this._order = array[ 3 ];
-
-			this.onChangeCallback();
-
-			return this;
-
-		},
-
-		toArray: function ( array, offset ) {
-
-			if ( array === undefined ) array = [];
-			if ( offset === undefined ) offset = 0;
-
-			array[ offset ] = this._x;
-			array[ offset + 1 ] = this._y;
-			array[ offset + 2 ] = this._z;
-			array[ offset + 3 ] = this._order;
-
-			return array;
-
-		},
-
-		toVector3: function ( optionalResult ) {
-
-			if ( optionalResult ) {
-
-				return optionalResult.set( this._x, this._y, this._z );
-
-			} else {
-
-				return new Vector3( this._x, this._y, this._z );
-
-			}
-
-		},
-
-		onChange: function ( callback ) {
-
-			this.onChangeCallback = callback;
-
-			return this;
-
-		},
-
-		onChangeCallback: function () {}
-
-	};
-
-	/**
-	 * @author mrdoob / http://mrdoob.com/
 	 */
 
 	function Layers() {
@@ -4869,317 +5180,6 @@
 	};
 
 	/**
-	 * @author alteredq / http://alteredqualia.com/
-	 * @author WestLangley / http://github.com/WestLangley
-	 * @author bhouston / http://clara.io
-	 * @author tschw
-	 */
-
-	function Matrix3() {
-
-		this.elements = new Float32Array( [
-
-			1, 0, 0,
-			0, 1, 0,
-			0, 0, 1
-
-		] );
-
-		if ( arguments.length > 0 ) {
-
-			console.error( 'THREE.Matrix3: the constructor no longer reads arguments. use .set() instead.' );
-
-		}
-
-	}
-
-	Matrix3.prototype = {
-
-		constructor: Matrix3,
-
-		isMatrix3: true,
-
-		set: function ( n11, n12, n13, n21, n22, n23, n31, n32, n33 ) {
-
-			var te = this.elements;
-
-			te[ 0 ] = n11; te[ 1 ] = n21; te[ 2 ] = n31;
-			te[ 3 ] = n12; te[ 4 ] = n22; te[ 5 ] = n32;
-			te[ 6 ] = n13; te[ 7 ] = n23; te[ 8 ] = n33;
-
-			return this;
-
-		},
-
-		identity: function () {
-
-			this.set(
-
-				1, 0, 0,
-				0, 1, 0,
-				0, 0, 1
-
-			);
-
-			return this;
-
-		},
-
-		clone: function () {
-
-			return new this.constructor().fromArray( this.elements );
-
-		},
-
-		copy: function ( m ) {
-
-			var me = m.elements;
-
-			this.set(
-
-				me[ 0 ], me[ 3 ], me[ 6 ],
-				me[ 1 ], me[ 4 ], me[ 7 ],
-				me[ 2 ], me[ 5 ], me[ 8 ]
-
-			);
-
-			return this;
-
-		},
-
-		setFromMatrix4: function( m ) {
-
-			var me = m.elements;
-
-			this.set(
-
-				me[ 0 ], me[ 4 ], me[  8 ],
-				me[ 1 ], me[ 5 ], me[  9 ],
-				me[ 2 ], me[ 6 ], me[ 10 ]
-
-			);
-
-			return this;
-
-		},
-
-		applyToVector3Array: function () {
-
-			var v1;
-
-			return function applyToVector3Array( array, offset, length ) {
-
-				if ( v1 === undefined ) v1 = new Vector3();
-				if ( offset === undefined ) offset = 0;
-				if ( length === undefined ) length = array.length;
-
-				for ( var i = 0, j = offset; i < length; i += 3, j += 3 ) {
-
-					v1.fromArray( array, j );
-					v1.applyMatrix3( this );
-					v1.toArray( array, j );
-
-				}
-
-				return array;
-
-			};
-
-		}(),
-
-		applyToBuffer: function () {
-
-			var v1;
-
-			return function applyToBuffer( buffer, offset, length ) {
-
-				if ( v1 === undefined ) v1 = new Vector3();
-				if ( offset === undefined ) offset = 0;
-				if ( length === undefined ) length = buffer.length / buffer.itemSize;
-
-				for ( var i = 0, j = offset; i < length; i ++, j ++ ) {
-
-					v1.x = buffer.getX( j );
-					v1.y = buffer.getY( j );
-					v1.z = buffer.getZ( j );
-
-					v1.applyMatrix3( this );
-
-					buffer.setXYZ( v1.x, v1.y, v1.z );
-
-				}
-
-				return buffer;
-
-			};
-
-		}(),
-
-		multiplyScalar: function ( s ) {
-
-			var te = this.elements;
-
-			te[ 0 ] *= s; te[ 3 ] *= s; te[ 6 ] *= s;
-			te[ 1 ] *= s; te[ 4 ] *= s; te[ 7 ] *= s;
-			te[ 2 ] *= s; te[ 5 ] *= s; te[ 8 ] *= s;
-
-			return this;
-
-		},
-
-		determinant: function () {
-
-			var te = this.elements;
-
-			var a = te[ 0 ], b = te[ 1 ], c = te[ 2 ],
-				d = te[ 3 ], e = te[ 4 ], f = te[ 5 ],
-				g = te[ 6 ], h = te[ 7 ], i = te[ 8 ];
-
-			return a * e * i - a * f * h - b * d * i + b * f * g + c * d * h - c * e * g;
-
-		},
-
-		getInverse: function ( matrix, throwOnDegenerate ) {
-
-			if ( (matrix && matrix.isMatrix4) ) {
-
-				console.error( "THREE.Matrix3.getInverse no longer takes a Matrix4 argument." );
-
-			}
-
-			var me = matrix.elements,
-				te = this.elements,
-
-				n11 = me[ 0 ], n21 = me[ 1 ], n31 = me[ 2 ],
-				n12 = me[ 3 ], n22 = me[ 4 ], n32 = me[ 5 ],
-				n13 = me[ 6 ], n23 = me[ 7 ], n33 = me[ 8 ],
-
-				t11 = n33 * n22 - n32 * n23,
-				t12 = n32 * n13 - n33 * n12,
-				t13 = n23 * n12 - n22 * n13,
-
-				det = n11 * t11 + n21 * t12 + n31 * t13;
-
-			if ( det === 0 ) {
-
-				var msg = "THREE.Matrix3.getInverse(): can't invert matrix, determinant is 0";
-
-				if ( throwOnDegenerate === true ) {
-
-					throw new Error( msg );
-
-				} else {
-
-					console.warn( msg );
-
-				}
-
-				return this.identity();
-			}
-
-			var detInv = 1 / det;
-
-			te[ 0 ] = t11 * detInv;
-			te[ 1 ] = ( n31 * n23 - n33 * n21 ) * detInv;
-			te[ 2 ] = ( n32 * n21 - n31 * n22 ) * detInv;
-
-			te[ 3 ] = t12 * detInv;
-			te[ 4 ] = ( n33 * n11 - n31 * n13 ) * detInv;
-			te[ 5 ] = ( n31 * n12 - n32 * n11 ) * detInv;
-
-			te[ 6 ] = t13 * detInv;
-			te[ 7 ] = ( n21 * n13 - n23 * n11 ) * detInv;
-			te[ 8 ] = ( n22 * n11 - n21 * n12 ) * detInv;
-
-			return this;
-
-		},
-
-		transpose: function () {
-
-			var tmp, m = this.elements;
-
-			tmp = m[ 1 ]; m[ 1 ] = m[ 3 ]; m[ 3 ] = tmp;
-			tmp = m[ 2 ]; m[ 2 ] = m[ 6 ]; m[ 6 ] = tmp;
-			tmp = m[ 5 ]; m[ 5 ] = m[ 7 ]; m[ 7 ] = tmp;
-
-			return this;
-
-		},
-
-		flattenToArrayOffset: function ( array, offset ) {
-
-			console.warn( "THREE.Matrix3: .flattenToArrayOffset is deprecated " +
-					"- just use .toArray instead." );
-
-			return this.toArray( array, offset );
-
-		},
-
-		getNormalMatrix: function ( matrix4 ) {
-
-			return this.setFromMatrix4( matrix4 ).getInverse( this ).transpose();
-
-		},
-
-		transposeIntoArray: function ( r ) {
-
-			var m = this.elements;
-
-			r[ 0 ] = m[ 0 ];
-			r[ 1 ] = m[ 3 ];
-			r[ 2 ] = m[ 6 ];
-			r[ 3 ] = m[ 1 ];
-			r[ 4 ] = m[ 4 ];
-			r[ 5 ] = m[ 7 ];
-			r[ 6 ] = m[ 2 ];
-			r[ 7 ] = m[ 5 ];
-			r[ 8 ] = m[ 8 ];
-
-			return this;
-
-		},
-
-		fromArray: function ( array, offset ) {
-
-			if ( offset === undefined ) offset = 0;
-
-			for( var i = 0; i < 9; i ++ ) {
-
-				this.elements[ i ] = array[ i + offset ];
-
-			}
-
-			return this;
-
-		},
-
-		toArray: function ( array, offset ) {
-
-			if ( array === undefined ) array = [];
-			if ( offset === undefined ) offset = 0;
-
-			var te = this.elements;
-
-			array[ offset ] = te[ 0 ];
-			array[ offset + 1 ] = te[ 1 ];
-			array[ offset + 2 ] = te[ 2 ];
-
-			array[ offset + 3 ] = te[ 3 ];
-			array[ offset + 4 ] = te[ 4 ];
-			array[ offset + 5 ] = te[ 5 ];
-
-			array[ offset + 6 ] = te[ 6 ];
-			array[ offset + 7 ] = te[ 7 ];
-			array[ offset + 8 ]  = te[ 8 ];
-
-			return array;
-
-		}
-
-	};
-
-	/**
 	 * @author mrdoob / http://mrdoob.com/
 	 * @author mikael emtinger / http://gomo.se/
 	 * @author alteredq / http://alteredqualia.com/
@@ -5191,7 +5191,7 @@
 
 		Object.defineProperty( this, 'id', { value: Object3DIdCount() } );
 
-		this.uuid = exports.Math.generateUUID();
+		this.uuid = _Math.generateUUID();
 
 		this.name = '';
 		this.type = 'Object3D';
@@ -5992,7 +5992,7 @@
 
 				if ( clampToLine ) {
 
-					t = exports.Math.clamp( t, 0, 1 );
+					t = _Math.clamp( t, 0, 1 );
 
 				}
 
@@ -6518,8 +6518,6 @@
 
 	};
 
-	var ColorKeywords;
-
 	/**
 	 * @author mrdoob / http://mrdoob.com/
 	 */
@@ -6613,9 +6611,9 @@
 			return function setHSL( h, s, l ) {
 
 				// h,s,l ranges are in 0.0 - 1.0
-				h = exports.Math.euclideanModulo( h, 1 );
-				s = exports.Math.clamp( s, 0, 1 );
-				l = exports.Math.clamp( l, 0, 1 );
+				h = _Math.euclideanModulo( h, 1 );
+				s = _Math.clamp( s, 0, 1 );
+				l = _Math.clamp( l, 0, 1 );
 
 				if ( s === 0 ) {
 
@@ -7016,7 +7014,7 @@
 
 	};
 
-	ColorKeywords = { 'aliceblue': 0xF0F8FF, 'antiquewhite': 0xFAEBD7, 'aqua': 0x00FFFF, 'aquamarine': 0x7FFFD4, 'azure': 0xF0FFFF,
+	var ColorKeywords = { 'aliceblue': 0xF0F8FF, 'antiquewhite': 0xFAEBD7, 'aqua': 0x00FFFF, 'aquamarine': 0x7FFFD4, 'azure': 0xF0FFFF,
 	'beige': 0xF5F5DC, 'bisque': 0xFFE4C4, 'black': 0x000000, 'blanchedalmond': 0xFFEBCD, 'blue': 0x0000FF, 'blueviolet': 0x8A2BE2,
 	'brown': 0xA52A2A, 'burlywood': 0xDEB887, 'cadetblue': 0x5F9EA0, 'chartreuse': 0x7FFF00, 'chocolate': 0xD2691E, 'coral': 0xFF7F50,
 	'cornflowerblue': 0x6495ED, 'cornsilk': 0xFFF8DC, 'crimson': 0xDC143C, 'cyan': 0x00FFFF, 'darkblue': 0x00008B, 'darkcyan': 0x008B8B,
@@ -7110,7 +7108,7 @@
 
 		Object.defineProperty( this, 'id', { value: MaterialIdCount() } );
 
-		this.uuid = exports.Math.generateUUID();
+		this.uuid = _Math.generateUUID();
 
 		this.name = '';
 		this.type = 'Material';
@@ -8190,7 +8188,7 @@
 
 		}
 
-		this.uuid = exports.Math.generateUUID();
+		this.uuid = _Math.generateUUID();
 
 		this.array = array;
 		this.itemSize = itemSize;
@@ -8213,6 +8211,19 @@
 		set needsUpdate( value ) {
 
 			if ( value === true ) this.version ++;
+
+		},
+
+		setArray: function ( array ) {
+
+			if ( Array.isArray( array ) ) {
+
+				throw new TypeError( 'THREE.BufferAttribute: array should be a Typed Array.' );
+
+			}
+
+			this.count = array !== undefined ? array.length / this.itemSize : 0;
+			this.array = array;
 
 		},
 
@@ -8519,7 +8530,7 @@
 
 		Object.defineProperty( this, 'id', { value: GeometryIdCount() } );
 
-		this.uuid = exports.Math.generateUUID();
+		this.uuid = _Math.generateUUID();
 
 		this.name = '';
 		this.type = 'Geometry';
@@ -9780,7 +9791,7 @@
 
 		Object.defineProperty( this, 'id', { value: GeometryIdCount() } );
 
-		this.uuid = exports.Math.generateUUID();
+		this.uuid = _Math.generateUUID();
 
 		this.name = '';
 		this.type = 'DirectGeometry';
@@ -10068,7 +10079,7 @@
 
 		Object.defineProperty( this, 'id', { value: GeometryIdCount() } );
 
-		this.uuid = exports.Math.generateUUID();
+		this.uuid = _Math.generateUUID();
 
 		this.name = '';
 		this.type = 'BufferGeometry';
@@ -11573,7 +11584,7 @@
 			// see http://www.bobatkins.com/photography/technical/field_of_view.html
 			var vExtentSlope = 0.5 * this.getFilmHeight() / focalLength;
 
-			this.fov = exports.Math.RAD2DEG * 2 * Math.atan( vExtentSlope );
+			this.fov = _Math.RAD2DEG * 2 * Math.atan( vExtentSlope );
 			this.updateProjectionMatrix();
 
 		},
@@ -11583,7 +11594,7 @@
 		 */
 		getFocalLength: function () {
 
-			var vExtentSlope = Math.tan( exports.Math.DEG2RAD * 0.5 * this.fov );
+			var vExtentSlope = Math.tan( _Math.DEG2RAD * 0.5 * this.fov );
 
 			return 0.5 * this.getFilmHeight() / vExtentSlope;
 
@@ -11591,8 +11602,8 @@
 
 		getEffectiveFOV: function () {
 
-			return exports.Math.RAD2DEG * 2 * Math.atan(
-					Math.tan( exports.Math.DEG2RAD * 0.5 * this.fov ) / this.zoom );
+			return _Math.RAD2DEG * 2 * Math.atan(
+					Math.tan( _Math.DEG2RAD * 0.5 * this.fov ) / this.zoom );
 
 		},
 
@@ -11673,7 +11684,7 @@
 
 			var near = this.near,
 				top = near * Math.tan(
-						exports.Math.DEG2RAD * 0.5 * this.fov ) / this.zoom,
+						_Math.DEG2RAD * 0.5 * this.fov ) / this.zoom,
 				height = 2 * top,
 				width = this.aspect * height,
 				left = - 0.5 * width,
@@ -11910,7 +11921,7 @@
 
 		Object.defineProperty( this, 'id', { value: TextureIdCount() } );
 
-		this.uuid = exports.Math.generateUUID();
+		this.uuid = _Math.generateUUID();
 
 		this.name = '';
 		this.sourceFile = '';
@@ -12072,7 +12083,7 @@
 
 				if ( image.uuid === undefined ) {
 
-					image.uuid = exports.Math.generateUUID(); // UGH
+					image.uuid = _Math.generateUUID(); // UGH
 
 				}
 
@@ -12759,13 +12770,11 @@
 
 	};
 
-	var UniformsUtils;
-
 	/**
 	 * Uniform Utilities
 	 */
 
-	UniformsUtils = {
+	var UniformsUtils = {
 
 		merge: function ( uniforms ) {
 
@@ -12799,13 +12808,10 @@
 
 					var parameter_src = uniforms_src[ u ][ p ];
 
-					if ( (parameter_src && parameter_src.isColor) ||
-						 (parameter_src && parameter_src.isVector2) ||
-						 (parameter_src && parameter_src.isVector3) ||
-						 (parameter_src && parameter_src.isVector4) ||
-						 (parameter_src && parameter_src.isMatrix3) ||
-						 (parameter_src && parameter_src.isMatrix4) ||
-						 (parameter_src && parameter_src.isTexture) ) {
+					if ( parameter_src && ( parameter_src.isColor ||
+						parameter_src.isMatrix3 || parameter_src.isMatrix4 ||
+						parameter_src.isVector2 || parameter_src.isVector3 || parameter_src.isVector4 ||
+						parameter_src.isTexture ) ) {
 
 						uniforms_dst[ u ][ p ] = parameter_src.clone();
 
@@ -14542,7 +14548,7 @@
 	*/
 	function WebGLRenderTarget( width, height, options ) {
 
-		this.uuid = exports.Math.generateUUID();
+		this.uuid = _Math.generateUUID();
 
 		this.width = width;
 		this.height = height;
@@ -17340,7 +17346,11 @@
 
 			gl.bindBuffer( bufferType, attributeProperties.__webglBuffer );
 
-			if ( data.dynamic === false || data.updateRange.count === - 1 ) {
+			if ( data.dynamic === false ) {
+
+				gl.bufferData( bufferType, data.array, gl.STATIC_DRAW );
+
+			} else if ( data.updateRange.count === - 1 ) {
 
 				// Not using update ranges
 
@@ -17487,7 +17497,7 @@
 
 		function isPowerOfTwo( image ) {
 
-			return exports.Math.isPowerOfTwo( image.width ) && exports.Math.isPowerOfTwo( image.height );
+			return _Math.isPowerOfTwo( image.width ) && _Math.isPowerOfTwo( image.height );
 
 		}
 
@@ -17496,8 +17506,8 @@
 			if ( image instanceof HTMLImageElement || image instanceof HTMLCanvasElement ) {
 
 				var canvas = document.createElementNS( 'http://www.w3.org/1999/xhtml', 'canvas' );
-				canvas.width = exports.Math.nearestPowerOfTwo( image.width );
-				canvas.height = exports.Math.nearestPowerOfTwo( image.height );
+				canvas.width = _Math.nearestPowerOfTwo( image.width );
+				canvas.height = _Math.nearestPowerOfTwo( image.height );
 
 				var context = canvas.getContext( '2d' );
 				context.drawImage( image, 0, 0, canvas.width, canvas.height );
@@ -22372,11 +22382,16 @@
 
 	exports.LinearFilter = LinearFilter;
 	exports.RGBFormat = RGBFormat;
+	exports.Euler = Euler;
+	exports.Matrix3 = Matrix3;
+	exports.Matrix4 = Matrix4;
 	exports.Mesh = Mesh;
 	exports.MeshBasicMaterial = MeshBasicMaterial;
 	exports.PerspectiveCamera = PerspectiveCamera;
+	exports.Quaternion = Quaternion;
 	exports.Scene = Scene;
 	exports.SphereGeometry = SphereGeometry;
+	exports.SphereBufferGeometry = SphereBufferGeometry;
 	exports.Texture = Texture;
 	exports.Vector3 = Vector3;
 	exports.WebGLRenderer = WebGLRenderer;
