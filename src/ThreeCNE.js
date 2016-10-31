@@ -14,3 +14,4 @@ export { SphereBufferGeometry } from './geometries/SphereBufferGeometry';
 export { Texture } from './textures/Texture.js';
 export { Vector3 } from './math/Vector3.js';
 export { WebGLRenderer } from './renderers/WebGLRenderer.js';
+export { Omnitone } from 'omnitone';
