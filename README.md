@@ -1,3 +1,8 @@
+# CNE fork of THREE.js
+_(for making custom builds)_
+
+To make a custom build, please see [player wiki](https://github.com/cnerepo/player-frontend/wiki/Custom-ThreeJS-Builds).
+
 three.js
 ========
 
